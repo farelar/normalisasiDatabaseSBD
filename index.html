@@ -93,7 +93,7 @@
                     </div>
                     <div class="ml-3">
                         <p class="text-sm text-blue-800 font-medium">
-                            <strong>Petunjuk Interaksi:</strong> Arahkan kursor (*hover*) pada baris kolom yang memiliki ikon kunci (<i class="fa-solid fa-key text-amber-500 text-xs"></i> / <i class="fa-solid fa-key text-blue-400 text-xs"></i>) untuk menyoroti relasi Primary Key (PK) ke Foreign Key (FK) di antara tabel-tabel tersebut.
+                            <strong>Petunjuk Interaksi:</strong> Hover pada baris kolom yang memiliki ikon kunci (<i class="fa-solid fa-key text-amber-500 text-xs"></i> / <i class="fa-solid fa-key text-blue-400 text-xs"></i>) untuk menyoroti relasi Primary Key (PK) ke Foreign Key (FK) di antara tabel-tabel tersebut.
                         </p>
                     </div>
                 </div>
@@ -251,6 +251,12 @@
                                     <span class="text-xs text-slate-400 font-mono">DECIMAL(10,2)</span>
                                 </div>
                                 <div class="flex justify-between items-center p-2 rounded bg-rose-500/10 border border-rose-500/20 text-rose-200">
+                                   <span class="font-semibold flex items-center gap-1.5">
+                                       <i class="fa-solid fa-calculator text-rose-400 text-xs"></i> Subtotal
+                                   </span>
+                                   <span class="text-xs font-mono font-bold text-amber-300">[Kalkulasi]</span>
+                               </div>
+                                <div class="flex justify-between items-center p-2 rounded bg-rose-500/10 border border-rose-500/20 text-rose-200">
                                     <span class="font-semibold flex items-center gap-1.5">
                                         <i class="fa-solid fa-calculator text-rose-400 text-xs"></i> Total_Bayar
                                     </span>
@@ -282,7 +288,7 @@
 
                 <!-- ERD Interactive Note -->
                 <div class="relative z-20 mt-8 pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
-                    Sistem Manajemen Database Relasional (RDBMS) - Dirancang khusus untuk mematuhi regulasi integritas referensial.
+                    Sistem Manajemen Database Relasional (RDBMS).
                 </div>
             </div>
         </div>
@@ -335,7 +341,11 @@
                                 <span>ADM BANK</span>
                                 <span class="font-bold text-slate-900">: RP. 0,00</span>
                             </div>
-                            <div class="border-b border-dashed border-slate-200 my-2"></div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('biaya')">
+                                <span>SUBTOTAL</span>
+                                <span class="font-bold text-slate-900">: RP. 52.000,00</span>
+                            </div>
+                            <div class="border-b border-dashed border-slate-400 my-2"></div>
                             <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('biaya')">
                                 <span>ADMIN KONTER</span>
                                 <span class="font-bold text-slate-900">: RP. 2.000,00</span>
@@ -354,7 +364,7 @@
                         <!-- Action Button -->
                         <div class="mt-4 pt-4 border-t border-slate-200">
                             <button onclick="startIngestionSimulation()" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-2">
-                                <i class="fa-solid fa-server"></i> Proses Aliran Data ke Database 3NF
+                                <i class="fa-solid fa-server"></i> Proses Simulasi
                             </button>
                         </div>
                     </div>
@@ -395,7 +405,7 @@
                                     </thead>
                                     <tbody>
                                         <tr id="sim-row-pelanggan" class="text-slate-400 italic transition-all duration-1000">
-                                            <td colspan="4" class="p-3 text-center py-4">Data Kosong. Klik "Proses Aliran Data" di sebelah kiri untuk simulasi.</td>
+                                            <td colspan="4" class="p-3 text-center py-4">Data Kosong. Klik "Proses Simulasi" di sebelah kiri untuk simulasi.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -472,8 +482,9 @@
                                             <th class="p-3 font-mono">No_Transaksi (PK,FK)</th>
                                             <th class="p-3 text-right">Nominal</th>
                                             <th class="p-3 text-right">Adm_Bank</th>
+                                            <th class="p-3 text-right bg-rose-50 text-rose-700">Subtotal</th>
                                             <th class="p-3 text-right">Admin_Konter</th>
-                                            <th class="p-3 text-right bg-rose-50 text-rose-700">Total_Bayar (Kalkulasi)</th>
+                                            <th class="p-3 text-right bg-rose-50 text-rose-700">Total_Bayar</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -526,7 +537,7 @@
                         Pada struk asli, terdapat kolom <span class="bg-amber-100 px-1.5 py-0.5 rounded text-amber-800 font-mono">TRF/DAYA : R1/450</span>. Kolom ini menggabungkan dua informasi penting. Sesuai prinsip 1NF, kita pecah menjadi dua nilai atomik yaitu: **Golongan Tarif** (<code class="font-bold text-indigo-600">R1</code>) and **Daya Listrik** (<code class="font-bold text-indigo-600">450</code>).
                     </p>
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs code-font overflow-x-auto text-slate-700">
-                        [Tabel_1NF] = { No_Transaksi, Nama_Konter, Waktu_Transaksi, ID_Pelanggan, Nama_Pelanggan, <span class="text-emerald-600 font-bold">Gol_Tarif, Daya</span>, Nominal, Rp_Token, Jml_KWh, Adm_Bank, Admin_Konter, Total_Bayar, Nomor_Token }
+                        [Tabel_1NF] = { Nama_Konter, Waktu_Transaksi, ID_Pelanggan, Nama_Pelanggan, <span class="text-emerald-600 font-bold">Gol_Tarif, Daya</span>, Nominal, Rp_Token, Jml_KWh, Adm_Bank, Admin_Konter, Total_Bayar, Nomor_Token }
                     </div>
                 </div>
 
@@ -540,14 +551,17 @@
                         </div>
                     </div>
                     <p class="text-sm text-slate-600 mb-4">
-                        Atribut master pelanggan seperti <span class="font-semibold text-slate-700">Nama_Pelanggan, Gol_Tarif, Daya</span> sebenarnya hanya bergantung pada <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">ID_Pelanggan</code>, bukan pada kunci transaksi <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">No_Transaksi</code>. Jika kita tidak memisahkan mereka, maka setiap pelanggan melakukan transaksi baru, kita harus menduplikasi nama dan daya mereka. Kita pecah menjadi tabel terpisah:
+                        Atribut master pelanggan seperti <span class="font-semibold text-slate-700">Nama_Pelanggan, Gol_Tarif, Daya</span> sebenarnya hanya bergantung pada <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">ID_Pelanggan</code>, bukan pada kunci transaksi <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">No_Transaksi</code>. Jika kita tidak memisahkan mereka, maka setiap pelanggan melakukan transaksi baru, kita harus menduplikasi nama dan daya mereka.  Begitu juga dengan master konter yang hanya bergantung pada <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">ID_Konter</code>. Kita pecah menjadi tabel terpisah:
                     </p>
                     <div class="space-y-2 text-xs code-font">
                         <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100 text-slate-700">
                             <strong>1. Tabel Pelanggan:</strong> { <span class="text-amber-600 font-bold">ID_Pelanggan (PK)</span>, Nama_Pelanggan, Gol_Tarif, Daya }
                         </div>
                         <div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 text-slate-700">
-                            <strong>2. Tabel Transaksi_Token:</strong> { <span class="text-amber-600 font-bold">No_Transaksi (PK)</span>, ID_Pelanggan (FK), Nama_Konter, Waktu_Transaksi, Nominal, Rp_Token, Jml_KWh, Adm_Bank, Admin_Konter, Total_Bayar, Nomor_Token }
+                            <strong>2. Tabel Transaksi_Token:</strong> { <span class="text-amber-600 font-bold">No_Transaksi (PK)</span>, ID_Pelanggan (FK), No_Konter (FK), Waktu_Transaksi, Nominal, Rp_Token, Jml_KWh, Adm_Bank, Admin_Konter, Total_Bayar, Nomor_Token }
+                        </div>
+                        <div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 text-slate-700">
+                            <strong>3. Tabel Konter:</strong> { <span class="text-amber-600 font-bold">ID_Konter (PK)</span>, Nama_Konter }
                         </div>
                     </div>
                 </div>
@@ -570,10 +584,10 @@
                         </p>
                         <ol class="list-decimal list-inside space-y-3 pl-2">
                             <li>
-                                <strong>Masalah Nama Konter (Redundansi String):</strong> Nama konter <code class="bg-emerald-50 text-emerald-700 px-1 py-0.5 rounded">GENTENG CELL1</code> tidak boleh ditulis berulang di ribuan baris transaksi. Kita pindahkan ke tabel <code class="font-bold">Konter</code>.
+                                <strong>Masalah Subtotal (Transitive Dependency):</strong> <code class="bg-rose-50 text-rose-700 px-1 py-0.5 rounded">Subtotal</code> didapat dari rumus: <code class="font-mono bg-slate-100 p-1 rounded font-bold text-slate-800">Nominal + Adm_Bank</code>. Kolom kalkulasi ini dipindahkan ke tabel detail biaya terpisah,atau dihitung di tingkat query/aplikasi untuk menghindari anomali perubahan biaya admin
                             </li>
                             <li>
-                                <strong>Masalah Total Bayar (Ketergantungan Transitif):</strong> <code class="bg-rose-50 text-rose-700 px-1 py-0.5 rounded">Total_Bayar</code> didapat secara mutlak dari rumus matematik: <code class="font-mono bg-slate-100 p-1 rounded font-bold text-slate-800">Nominal + Adm_Bank + Admin_Konter</code>. Kolom kalkulasi ini dipindahkan ke tabel detail biaya terpisah, atau dihitung di tingkat query/aplikasi untuk menghindari anomali perubahan biaya admin.
+                                <strong>Masalah Total Bayar (Transitive Dependency):</strong> <code class="bg-rose-50 text-rose-700 px-1 py-0.5 rounded">Total_Bayar</code> didapat secara dari rumus: <code class="font-mono bg-slate-100 p-1 rounded font-bold text-slate-800">Nominal + Adm_Bank + Admin_Konter</code>. Kolom kalkulasi ini dipindahkan ke tabel detail biaya terpisah, atau dihitung di tingkat query/aplikasi untuk menghindari anomali perubahan biaya admin.
                             </li>
                         </ol>
                     </div>
@@ -603,7 +617,7 @@
             <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
                 <div class="bg-slate-800/80 border-b border-slate-700 px-4 py-3 flex items-center justify-between text-xs font-mono text-slate-400">
                     <span>skema_database_3nf_pln.sql</span>
-                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> SQL DDL</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> SQL</span>
                 </div>
                 <pre class="p-4 overflow-x-auto text-sm code-font text-emerald-400 leading-relaxed"><code id="sql-code-block">-- 1. Buat Tabel Master Pelanggan
 CREATE TABLE Pelanggan (
@@ -639,6 +653,7 @@ CREATE TABLE Detail_Biaya_Transaksi (
     Adm_Bank DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     Admin_Konter DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     -- MariaDB / PostgreSQL / MySQL Generated Column:
+    Subtotal DECIMAL(10,2) GENERATED ALWAYS AS (Nominal + Adm_Bank) STORED,
     Total_Bayar DECIMAL(10,2) GENERATED ALWAYS AS (Nominal + Adm_Bank + Admin_Konter) STORED,
     FOREIGN KEY (No_Transaksi) REFERENCES Transaksi_Token(No_Transaksi) ON DELETE CASCADE
 );
@@ -670,8 +685,8 @@ VALUES ('TX202606281535', 52000.00, 0.00, 2000.00);</code></pre>
     <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-center text-xs mt-12">
         <div class="max-w-7xl mx-auto px-4">
-            <p>© 2026 Sistem Normalisasi Database PLN (3NF) - Dirancang dengan Presisi Akademik</p>
-            <p class="mt-2 text-slate-600">Model ini menjamin tidak ada anomali sisip (*insert*), hapus (*delete*), maupun perbarui (*update*).</p>
+            <p>©2026 Farel Ar-Rizieq All rights reserved.</p>
+            <p>Do or do not, there is no try!</p>
         </div>
     </footer>
 
@@ -921,6 +936,7 @@ VALUES ('TX202606281535', 52000.00, 0.00, 2000.00);</code></pre>
                     <td class="p-3 font-mono font-bold text-rose-600">TX202606281535</td>
                     <td class="p-3 text-right">Rp 52.000,00</td>
                     <td class="p-3 text-right text-slate-400">Rp 0,00</td>
+                    <td class="p-3 text-right font-bold bg-emerald-500 text-white rounded-lg">Rp 52.000,00</td>
                     <td class="p-3 text-right text-slate-500">Rp 2.000,00</td>
                     <td class="p-3 text-right font-bold bg-emerald-500 text-white rounded-lg">Rp 54.000,00</td>
                 `;
@@ -956,7 +972,7 @@ VALUES ('TX202606281535', 52000.00, 0.00, 2000.00);</code></pre>
             status.className = "text-emerald-400";
             indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
 
-            document.getElementById('sim-row-pelanggan').innerHTML = '<td colspan="4" class="p-3 text-center py-4">Data Kosong. Klik "Proses Aliran Data" di sebelah kiri untuk simulasi.</td>';
+            document.getElementById('sim-row-pelanggan').innerHTML = '<td colspan="4" class="p-3 text-center py-4">Data Kosong. Klik "Proses Simulasi" di sebelah kiri untuk simulasi.</td>';
             document.getElementById('sim-row-pelanggan').className = "text-slate-400 italic";
 
             document.getElementById('sim-row-konter').innerHTML = '<td colspan="2" class="p-3 text-center py-4">Data Kosong.</td>';
