@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisator & Diagram ERD Normalisasi Struk PLN</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .scale-102 {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-white/10 rounded-xl backdrop-blur-md">
+                    <i class="fa-solid fa-database text-3xl text-amber-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight">Visualisator Database Struk PLN (3NF)</h1>
+                    <p class="text-sm text-blue-100 mt-1">Diagram ERD, Dokumentasi Normalisasi, dan Simulasi Aliran Data Interaktif</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold rounded-full flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Lulus Uji 3NF
+                </span>
+                <span class="px-3 py-1 bg-white/10 text-white text-xs font-semibold rounded-full">
+                    Struk: GENTENG CELL1
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <div class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-8" aria-label="Tabs">
+                <button onclick="switchTab('erd')" id="tab-erd" class="border-b-2 border-blue-600 text-blue-600 px-1 py-4 text-sm font-semibold flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-diagram-project"></i> Diagram ERD Interaktif
+                </button>
+                <button onclick="switchTab('simulasi')" id="tab-simulasi" class="border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 px-1 py-4 text-sm font-semibold flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-rotate animate-spin-slow"></i> Simulasi Aliran Data
+                </button>
+                <button onclick="switchTab('langkah')" id="tab-langkah" class="border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 px-1 py-4 text-sm font-semibold flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-route"></i> Perjalanan Normalisasi
+                </button>
+                <button onclick="switchTab('sql')" id="tab-sql" class="border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 px-1 py-4 text-sm font-semibold flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-code"></i> Ekspor SQL DDL
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        
+        <!-- Tab 1: Interactive ERD -->
+        <div id="content-erd" class="space-y-6">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa-solid fa-circle-info text-blue-500 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-800 font-medium">
+                            <strong>Petunjuk Interaksi:</strong> Arahkan kursor (*hover*) pada baris kolom yang memiliki ikon kunci (<i class="fa-solid fa-key text-amber-500 text-xs"></i> / <i class="fa-solid fa-key text-blue-400 text-xs"></i>) untuk menyoroti relasi Primary Key (PK) ke Foreign Key (FK) di antara tabel-tabel tersebut.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative bg-slate-900 rounded-2xl p-6 md:p-8 shadow-xl overflow-hidden min-h-[600px] flex flex-col justify-between">
+                <!-- Grid background effects -->
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30"></div>
+                
+                <!-- SVG Canvas for connection lines -->
+                <svg id="relation-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+
+                <!-- Tables Container -->
+                <div class="relative z-20 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-4 items-center">
+                    
+                    <!-- LEFT COLUMN: Master Tables -->
+                    <div class="md:col-span-4 space-y-8">
+                        
+                        <!-- Table: Pelanggan -->
+                        <div id="table-pelanggan" class="bg-slate-800/90 border border-blue-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-blue-400 hover:shadow-blue-500/10">
+                            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 px-4 py-3 rounded-t-xl border-b border-blue-500/30 flex justify-between items-center">
+                                <span class="font-bold text-blue-100 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <i class="fa-solid fa-user-tag text-blue-400"></i> Pelanggan
+                                </span>
+                                <span class="px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 text-[10px] font-semibold text-blue-300 rounded">Master</span>
+                            </div>
+                            <div class="p-3 space-y-2 text-sm text-slate-300">
+                                <div id="col-pel-id" class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors cursor-help" onmouseenter="highlightRelation('id_pelanggan')" onmouseleave="clearHighlight()">
+                                    <span class="font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-key text-amber-400 text-xs"></i> ID_Pelanggan <span class="text-[10px] text-slate-500 font-mono">PK</span>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(12)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Nama_Pelanggan</span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(100)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Gol_Tarif</span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(5)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Daya</span>
+                                    <span class="text-xs text-slate-400 font-mono">INT</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table: Konter -->
+                        <div id="table-konter" class="bg-slate-800/90 border border-emerald-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-emerald-400 hover:shadow-emerald-500/10">
+                            <div class="bg-gradient-to-r from-emerald-900 to-teal-900 px-4 py-3 rounded-t-xl border-b border-emerald-500/30 flex justify-between items-center">
+                                <span class="font-bold text-emerald-100 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <i class="fa-solid fa-store text-emerald-400"></i> Konter
+                                </span>
+                                <span class="px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/40 text-[10px] font-semibold text-emerald-300 rounded">Master</span>
+                            </div>
+                            <div class="p-3 space-y-2 text-sm text-slate-300">
+                                <div id="col-kon-id" class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors cursor-help" onmouseenter="highlightRelation('id_konter')" onmouseleave="clearHighlight()">
+                                    <span class="font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-key text-amber-400 text-xs"></i> ID_Konter <span class="text-[10px] text-slate-500 font-mono">PK</span>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-mono">INT (A.I)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Nama_Konter</span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(50)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- MIDDLE COLUMN: Core Transaction Table -->
+                    <div class="md:col-span-4 md:px-2">
+                        
+                        <!-- Table: Transaksi_Token -->
+                        <div id="table-transaksi" class="bg-slate-800/95 border-2 border-indigo-500/50 rounded-xl shadow-2xl transition-all duration-300 hover:border-indigo-400">
+                            <div class="bg-gradient-to-r from-indigo-900 to-purple-900 px-4 py-3 rounded-t-xl border-b border-indigo-500/40 flex justify-between items-center">
+                                <span class="font-bold text-indigo-100 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <i class="fa-solid fa-file-invoice-dollar text-indigo-400"></i> Transaksi_Token
+                                </span>
+                                <span class="px-2 py-0.5 bg-indigo-500/35 border border-indigo-500/50 text-[10px] font-bold text-indigo-200 rounded">Core</span>
+                            </div>
+                            <div class="p-3 space-y-1.5 text-sm text-slate-300">
+                                <div id="col-tx-id" class="flex justify-between items-center p-1.5 rounded hover:bg-slate-700/50 transition-colors cursor-help" onmouseenter="highlightRelation('no_transaksi')" onmouseleave="clearHighlight()">
+                                    <span class="font-medium flex items-center gap-2 text-indigo-300">
+                                        <i class="fa-solid fa-key text-amber-400 text-xs"></i> No_Transaksi <span class="text-[10px] text-slate-500 font-mono">PK</span>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(20)</span>
+                                </div>
+                                
+                                <div id="col-tx-konter" class="flex justify-between items-center p-1.5 rounded hover:bg-slate-700/50 transition-colors cursor-help border border-transparent hover:border-emerald-500/30" onmouseenter="highlightRelation('id_konter')" onmouseleave="clearHighlight()">
+                                    <span class="font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-key text-blue-400 text-xs"></i> ID_Konter <span class="text-[10px] text-emerald-400 font-mono">FK</span>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-mono">INT</span>
+                                </div>
+
+                                <div id="col-tx-pelanggan" class="flex justify-between items-center p-1.5 rounded hover:bg-slate-700/50 transition-colors cursor-help border border-transparent hover:border-blue-500/30" onmouseenter="highlightRelation('id_pelanggan')" onmouseleave="clearHighlight()">
+                                    <span class="font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-key text-blue-400 text-xs"></i> ID_Pelanggan <span class="text-[10px] text-blue-400 font-mono">FK</span>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(12)</span>
+                                </div>
+
+                                <div class="flex justify-between items-center p-1.5 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Waktu_Transaksi</span>
+                                    <span class="text-xs text-slate-400 font-mono">DATETIME</span>
+                                </div>
+                                <div class="flex justify-between items-center p-1.5 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Rp_Token</span>
+                                    <span class="text-xs text-slate-400 font-mono">DECIMAL(10,2)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-1.5 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Jml_KWh</span>
+                                    <span class="text-xs text-slate-400 font-mono">DECIMAL(6,2)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-1.5 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Nomor_Token</span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(20)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN: Financial Details Table (Computed / 3NF Table Split) -->
+                    <div class="md:col-span-4">
+                        
+                        <!-- Table: Detail_Biaya_Transaksi -->
+                        <div id="table-biaya" class="bg-slate-800/90 border border-rose-500/30 rounded-xl shadow-lg transition-all duration-300 hover:border-rose-400 hover:shadow-rose-500/10">
+                            <div class="bg-gradient-to-r from-rose-900 to-red-900 px-4 py-3 rounded-t-xl border-b border-rose-500/30 flex justify-between items-center">
+                                <span class="font-bold text-rose-100 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <i class="fa-solid fa-sack-dollar text-rose-400"></i> Detail_Biaya_Transaksi
+                                </span>
+                                <span class="px-2 py-0.5 bg-rose-500/20 border border-rose-500/40 text-[10px] font-semibold text-rose-300 rounded">Biaya (3NF)</span>
+                            </div>
+                            <div class="p-3 space-y-2 text-sm text-slate-300">
+                                <div id="col-biaya-tx" class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors cursor-help" onmouseenter="highlightRelation('no_transaksi')" onmouseleave="clearHighlight()">
+                                    <span class="font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-key text-amber-400 text-xs"></i> No_Transaksi <span class="text-[10px] text-slate-500 font-mono">PK,FK</span>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-mono">VARCHAR(20)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Nominal</span>
+                                    <span class="text-xs text-slate-400 font-mono">DECIMAL(10,2)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Adm_Bank</span>
+                                    <span class="text-xs text-slate-400 font-mono">DECIMAL(10,2)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded hover:bg-slate-700/50 transition-colors">
+                                    <span>Admin_Konter</span>
+                                    <span class="text-xs text-slate-400 font-mono">DECIMAL(10,2)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded bg-rose-500/10 border border-rose-500/20 text-rose-200">
+                                    <span class="font-semibold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-calculator text-rose-400 text-xs"></i> Total_Bayar
+                                    </span>
+                                    <span class="text-xs font-mono font-bold text-amber-300">[Kalkulasi]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="mt-6 bg-slate-800/40 border border-slate-700 rounded-xl p-4 text-xs text-slate-400 space-y-2">
+                            <span class="font-bold text-slate-300 block mb-1">Keterangan Atribut:</span>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded bg-amber-400 inline-block"></span>
+                                <span><strong>Primary Key (PK):</strong> Pengidentifikasi unik baris data.</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded bg-blue-400 inline-block"></span>
+                                <span><strong>Foreign Key (FK):</strong> Penghubung relasi ke tabel lain.</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/40 inline-block"></span>
+                                <span><strong>Kalkulasi:</strong> Kolom terhitung, anti Transitive Dependency.</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ERD Interactive Note -->
+                <div class="relative z-20 mt-8 pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
+                    Sistem Manajemen Database Relasional (RDBMS) - Dirancang khusus untuk mematuhi regulasi integritas referensial.
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Interactive Ingestion Simulator -->
+        <div id="content-simulasi" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Left: Interactive Struk -->
+                <div class="lg:col-span-4">
+                    <div class="bg-white border-2 border-slate-300 rounded-2xl shadow-xl overflow-hidden p-6 relative">
+                        <!-- Thermal paper effects -->
+                        <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-b from-slate-200 to-transparent"></div>
+                        
+                        <!-- Header Struk -->
+                        <div class="text-center border-b border-dashed border-slate-300 pb-4">
+                            <h3 class="font-bold text-base tracking-wider text-slate-800">** GENTENG CELL1 **</h3>
+                            <p class="text-xs text-slate-500 mt-1">28/06/2026 15:35:14 (CU)</p>
+                            <p class="text-xs text-slate-600 font-bold mt-2">STRUK PEMBELIAN LISTRIK PRABAYAR</p>
+                        </div>
+
+                        <!-- Data Struk -->
+                        <div class="py-4 space-y-2 text-xs font-mono text-slate-700">
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors group cursor-help animate-pulse" onclick="highlightSimulatedTable('pelanggan')">
+                                <span>IDPEL</span>
+                                <span class="font-bold text-slate-900">: 524510129249</span>
+                            </div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('pelanggan')">
+                                <span>NAMA</span>
+                                <span class="font-bold text-slate-900">: HARYUNUDIN</span>
+                            </div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('pelanggan')">
+                                <span>TRF/DAYA</span>
+                                <span class="font-bold text-slate-900">: R1/450</span>
+                            </div>
+                            <div class="border-b border-dashed border-slate-200 my-2"></div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('biaya')">
+                                <span>NOMINAL</span>
+                                <span class="font-bold text-slate-900">: RP. 52.000,00</span>
+                            </div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('transaksi')">
+                                <span>RP TOKEN</span>
+                                <span class="font-bold text-slate-900">: RP. 52.000,00</span>
+                            </div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('transaksi')">
+                                <span>JML KWH</span>
+                                <span class="font-bold text-slate-900">: 109.6</span>
+                            </div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('biaya')">
+                                <span>ADM BANK</span>
+                                <span class="font-bold text-slate-900">: RP. 0,00</span>
+                            </div>
+                            <div class="border-b border-dashed border-slate-200 my-2"></div>
+                            <div class="flex justify-between hover:bg-amber-50 p-1 rounded transition-colors" onclick="highlightSimulatedTable('biaya')">
+                                <span>ADMIN KONTER</span>
+                                <span class="font-bold text-slate-900">: RP. 2.000,00</span>
+                            </div>
+                            <div class="flex justify-between text-sm bg-slate-100 p-2 rounded text-slate-900 font-bold" onclick="highlightSimulatedTable('biaya')">
+                                <span>TOTAL BAYAR</span>
+                                <span>RP. 54.000,00</span>
+                            </div>
+                            <div class="border-b border-dashed border-slate-200 my-2"></div>
+                            <div class="text-center py-2 bg-slate-50 border border-slate-200 rounded cursor-pointer" onclick="highlightSimulatedTable('transaksi')">
+                                <p class="text-[10px] text-slate-500 font-sans">-- TOKEN --</p>
+                                <p class="text-sm font-bold tracking-widest text-slate-950 mt-1">2990-3265-1260-7101-8074</p>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="mt-4 pt-4 border-t border-slate-200">
+                            <button onclick="startIngestionSimulation()" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-server"></i> Proses Aliran Data ke Database 3NF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Database Tables Simulation -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="bg-slate-800 text-white p-4 rounded-xl flex items-center justify-between shadow">
+                        <span class="text-sm font-semibold flex items-center gap-2">
+                            <span id="sim-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 
+                            Status Database: <span id="sim-db-status" class="text-emerald-400">Siap Menerima Simulasi</span>
+                        </span>
+                        <button onclick="resetSimulation()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-300">
+                            <i class="fa-solid fa-arrows-rotate"></i> Atur Ulang Data
+                        </button>
+                    </div>
+
+                    <!-- Simulator Tables Layout -->
+                    <div class="space-y-6">
+                        
+                        <!-- Table 1: Pelanggan -->
+                        <div id="sim-tbl-pelanggan" class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow transition-all duration-500">
+                            <div class="bg-blue-50 border-b border-blue-200 px-4 py-2.5 flex justify-between items-center">
+                                <span class="font-bold text-blue-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-user-tag text-blue-500"></i> Tabel: Pelanggan
+                                </span>
+                                <span class="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded">Master Data</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                                            <th class="p-3 font-mono">ID_Pelanggan (PK)</th>
+                                            <th class="p-3">Nama_Pelanggan</th>
+                                            <th class="p-3">Gol_Tarif</th>
+                                            <th class="p-3">Daya</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="sim-row-pelanggan" class="text-slate-400 italic transition-all duration-1000">
+                                            <td colspan="4" class="p-3 text-center py-4">Data Kosong. Klik "Proses Aliran Data" di sebelah kiri untuk simulasi.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Table 2: Konter -->
+                        <div id="sim-tbl-konter" class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow transition-all duration-500">
+                            <div class="bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 flex justify-between items-center">
+                                <span class="font-bold text-emerald-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-store text-emerald-500"></i> Tabel: Konter
+                                </span>
+                                <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded">Master Data</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                                            <th class="p-3 font-mono">ID_Konter (PK)</th>
+                                            <th class="p-3">Nama_Konter</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="sim-row-konter" class="text-slate-400 italic transition-all duration-1000">
+                                            <td colspan="2" class="p-3 text-center py-4">Data Kosong.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Table 3: Transaksi_Token -->
+                        <div id="sim-tbl-transaksi" class="bg-white border-2 border-transparent rounded-xl overflow-hidden shadow transition-all duration-500">
+                            <div class="bg-indigo-50 border-b border-indigo-200 px-4 py-2.5 flex justify-between items-center">
+                                <span class="font-bold text-indigo-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-file-invoice-dollar text-indigo-500"></i> Tabel: Transaksi_Token
+                                </span>
+                                <span class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded">Transaksi Core</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                                            <th class="p-2 font-mono">No_Transaksi (PK)</th>
+                                            <th class="p-2 font-mono">ID_Konter (FK)</th>
+                                            <th class="p-2 font-mono">ID_Pelanggan (FK)</th>
+                                            <th class="p-2">Waktu</th>
+                                            <th class="p-2 text-right">Rp_Token</th>
+                                            <th class="p-2 text-right">Jml_KWh</th>
+                                            <th class="p-2">Nomor_Token</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="sim-row-transaksi" class="text-slate-400 italic transition-all duration-1000">
+                                            <td colspan="7" class="p-3 text-center py-4">Data Kosong.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Table 4: Detail_Biaya_Transaksi -->
+                        <div id="sim-tbl-biaya" class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow transition-all duration-500">
+                            <div class="bg-rose-50 border-b border-rose-200 px-4 py-2.5 flex justify-between items-center">
+                                <span class="font-bold text-rose-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-sack-dollar text-rose-500"></i> Tabel: Detail_Biaya_Transaksi
+                                </span>
+                                <span class="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded">Biaya Finansial (3NF)</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                                            <th class="p-3 font-mono">No_Transaksi (PK,FK)</th>
+                                            <th class="p-3 text-right">Nominal</th>
+                                            <th class="p-3 text-right">Adm_Bank</th>
+                                            <th class="p-3 text-right">Admin_Konter</th>
+                                            <th class="p-3 text-right bg-rose-50 text-rose-700">Total_Bayar (Kalkulasi)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="sim-row-biaya" class="text-slate-400 italic transition-all duration-1000">
+                                            <td colspan="5" class="p-3 text-center py-4">Data Kosong.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 3: Normalization Journey -->
+        <div id="content-langkah" class="hidden space-y-8">
+            <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b pb-2 border-slate-200">
+                <i class="fa-solid fa-map-signs text-blue-600"></i> Perjalanan Teori Normalisasi Struk Listrik
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- UNF CARD -->
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-extrabold text-sm">UNF</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Bentuk Tidak Normal (Unnormalized Form)</h3>
+                            <p class="text-xs text-slate-500">Data mentah langsung ditulis apa adanya dari dokumen fisik</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">Pada kondisi ini, seluruh data dari struk (seperti Nama Konter, IDPEL, Nominal, hingga Token) dikumpulkan ke dalam satu tabel datar yang sangat besar tanpa struktur yang baik.</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs code-font overflow-x-auto text-slate-700">
+                        { No_Transaksi, Nama_Konter, Waktu_Transaksi, IDPEL, Nama_Pelanggan, Tarif_Daya, Nominal, Rp_Token, Jml_KWh, Adm_Bank, Admin_Konter, Total_Bayar, Nomor_Token }
+                    </div>
+                </div>
+
+                <!-- 1NF CARD -->
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-extrabold text-sm">1NF</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Bentuk Normal Pertama (1st Normal Form)</h3>
+                            <p class="text-xs text-slate-500">Nilai data harus atomik (tidak bercabang)</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Pada struk asli, terdapat kolom <span class="bg-amber-100 px-1.5 py-0.5 rounded text-amber-800 font-mono">TRF/DAYA : R1/450</span>. Kolom ini menggabungkan dua informasi penting. Sesuai prinsip 1NF, kita pecah menjadi dua nilai atomik yaitu: **Golongan Tarif** (<code class="font-bold text-indigo-600">R1</code>) and **Daya Listrik** (<code class="font-bold text-indigo-600">450</code>).
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs code-font overflow-x-auto text-slate-700">
+                        [Tabel_1NF] = { No_Transaksi, Nama_Konter, Waktu_Transaksi, ID_Pelanggan, Nama_Pelanggan, <span class="text-emerald-600 font-bold">Gol_Tarif, Daya</span>, Nominal, Rp_Token, Jml_KWh, Adm_Bank, Admin_Konter, Total_Bayar, Nomor_Token }
+                    </div>
+                </div>
+
+                <!-- 2NF CARD -->
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-extrabold text-sm">2NF</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Bentuk Normal Kedua (2nd Normal Form)</h3>
+                            <p class="text-xs text-slate-500">Menghilangkan Ketergantungan Parsial (Partial Dependency)</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Atribut master pelanggan seperti <span class="font-semibold text-slate-700">Nama_Pelanggan, Gol_Tarif, Daya</span> sebenarnya hanya bergantung pada <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">ID_Pelanggan</code>, bukan pada kunci transaksi <code class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded">No_Transaksi</code>. Jika kita tidak memisahkan mereka, maka setiap pelanggan melakukan transaksi baru, kita harus menduplikasi nama dan daya mereka. Kita pecah menjadi tabel terpisah:
+                    </p>
+                    <div class="space-y-2 text-xs code-font">
+                        <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100 text-slate-700">
+                            <strong>1. Tabel Pelanggan:</strong> { <span class="text-amber-600 font-bold">ID_Pelanggan (PK)</span>, Nama_Pelanggan, Gol_Tarif, Daya }
+                        </div>
+                        <div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 text-slate-700">
+                            <strong>2. Tabel Transaksi_Token:</strong> { <span class="text-amber-600 font-bold">No_Transaksi (PK)</span>, ID_Pelanggan (FK), Nama_Konter, Waktu_Transaksi, Nominal, Rp_Token, Jml_KWh, Adm_Bank, Admin_Konter, Total_Bayar, Nomor_Token }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3NF CARD -->
+                <div class="bg-white border-2 border-emerald-500 rounded-2xl shadow-md p-6 relative">
+                    <span class="absolute top-4 right-4 bg-emerald-500 text-white font-bold text-xs px-3 py-1 rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-check"></i> Standard Akhir
+                    </span>
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-extrabold text-sm">3NF</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-emerald-800">Bentuk Normal Ketiga (3rd Normal Form)</h3>
+                            <p class="text-xs text-emerald-600">Menghilangkan Ketergantungan Transitif & Redundansi Sekunder</p>
+                        </div>
+                    </div>
+                    <div class="text-sm text-slate-600 space-y-4">
+                        <p>
+                            Ada dua masalah serius di 2NF yang diselesaikan di tahap 3NF ini demi mencapai integritas data:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-3 pl-2">
+                            <li>
+                                <strong>Masalah Nama Konter (Redundansi String):</strong> Nama konter <code class="bg-emerald-50 text-emerald-700 px-1 py-0.5 rounded">GENTENG CELL1</code> tidak boleh ditulis berulang di ribuan baris transaksi. Kita pindahkan ke tabel <code class="font-bold">Konter</code>.
+                            </li>
+                            <li>
+                                <strong>Masalah Total Bayar (Ketergantungan Transitif):</strong> <code class="bg-rose-50 text-rose-700 px-1 py-0.5 rounded">Total_Bayar</code> didapat secara mutlak dari rumus matematik: <code class="font-mono bg-slate-100 p-1 rounded font-bold text-slate-800">Nominal + Adm_Bank + Admin_Konter</code>. Kolom kalkulasi ini dipindahkan ke tabel detail biaya terpisah, atau dihitung di tingkat query/aplikasi untuk menghindari anomali perubahan biaya admin.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: SQL DDL Export -->
+        <div id="content-sql" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-code text-indigo-600"></i> Ekspor Kode Struktur SQL (3NF)
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">Salin kode DDL ini dan jalankan pada client database Anda (MySQL / PostgreSQL / SQLite / MariaDB).</p>
+                </div>
+                <button onclick="copySQLCode()" class="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md transition-all flex items-center gap-2">
+                    <i id="copy-icon" class="fa-regular fa-copy"></i> <span id="copy-text">Salin Kode SQL</span>
+                </button>
+            </div>
+
+            <!-- Toast Success Copy Custom (Anti Alert) -->
+            <div id="toast-copy" class="hidden bg-emerald-500 text-white text-sm px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300">
+                <i class="fa-solid fa-circle-check"></i> Kode SQL berhasil disalin ke clipboard Anda!
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                <div class="bg-slate-800/80 border-b border-slate-700 px-4 py-3 flex items-center justify-between text-xs font-mono text-slate-400">
+                    <span>skema_database_3nf_pln.sql</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> SQL DDL</span>
+                </div>
+                <pre class="p-4 overflow-x-auto text-sm code-font text-emerald-400 leading-relaxed"><code id="sql-code-block">-- 1. Buat Tabel Master Pelanggan
+CREATE TABLE Pelanggan (
+    ID_Pelanggan VARCHAR(12) PRIMARY KEY,
+    Nama_Pelanggan VARCHAR(100) NOT NULL,
+    Gol_Tarif VARCHAR(5) NOT NULL,
+    Daya INT NOT NULL
+);
+
+-- 2. Buat Tabel Master Konter
+CREATE TABLE Konter (
+    ID_Konter INT AUTO_INCREMENT PRIMARY KEY,
+    Nama_Konter VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- 3. Buat Tabel Utama Transaksi Token
+CREATE TABLE Transaksi_Token (
+    No_Transaksi VARCHAR(20) PRIMARY KEY,
+    ID_Konter INT NOT NULL,
+    ID_Pelanggan VARCHAR(12) NOT NULL,
+    Waktu_Transaksi DATETIME NOT NULL,
+    Rp_Token DECIMAL(10,2) NOT NULL,
+    Jml_KWh DECIMAL(6,2) NOT NULL,
+    Nomor_Token VARCHAR(20) NOT NULL UNIQUE,
+    FOREIGN KEY (ID_Konter) REFERENCES Konter(ID_Konter) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (ID_Pelanggan) REFERENCES Pelanggan(ID_Pelanggan) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- 4. Buat Tabel Detail Biaya Transaksi (Pemisahan Total_Bayar demi 3NF)
+CREATE TABLE Detail_Biaya_Transaksi (
+    No_Transaksi VARCHAR(20) PRIMARY KEY,
+    Nominal DECIMAL(10,2) NOT NULL,
+    Adm_Bank DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    Admin_Konter DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    -- MariaDB / PostgreSQL / MySQL Generated Column:
+    Total_Bayar DECIMAL(10,2) GENERATED ALWAYS AS (Nominal + Adm_Bank + Admin_Konter) STORED,
+    FOREIGN KEY (No_Transaksi) REFERENCES Transaksi_Token(No_Transaksi) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- CONTOH DATA INSERT DARI STRUK GENTENG CELL1:
+-- ==========================================
+
+-- Data Master Pelanggan
+INSERT INTO Pelanggan (ID_Pelanggan, Nama_Pelanggan, Gol_Tarif, Daya)
+VALUES ('524510129249', 'HARYUNUDIN', 'R1', 450);
+
+-- Data Master Konter
+INSERT INTO Konter (ID_Konter, Nama_Konter)
+VALUES (1, 'GENTENG CELL1');
+
+-- Data Transaksi
+INSERT INTO Transaksi_Token (No_Transaksi, ID_Konter, ID_Pelanggan, Waktu_Transaksi, Rp_Token, Jml_KWh, Nomor_Token)
+VALUES ('TX202606281535', 1, '524510129249', '2026-06-28 15:35:14', 52000.00, 109.6, '29903265126071018074');
+
+-- Data Detail Biaya
+INSERT INTO Detail_Biaya_Transaksi (No_Transaksi, Nominal, Adm_Bank, Admin_Konter)
+VALUES ('TX202606281535', 52000.00, 0.00, 2000.00);</code></pre>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-center text-xs mt-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Sistem Normalisasi Database PLN (3NF) - Dirancang dengan Presisi Akademik</p>
+            <p class="mt-2 text-slate-600">Model ini menjamin tidak ada anomali sisip (*insert*), hapus (*delete*), maupun perbarui (*update*).</p>
+        </div>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // Tab switching logic
+        function switchTab(tabName) {
+            const tabs = ['erd', 'simulasi', 'langkah', 'sql'];
+            tabs.forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('border-blue-600', 'text-blue-600');
+                document.getElementById(`tab-${t}`).classList.add('border-transparent', 'text-slate-500');
+            });
+
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('border-blue-600', 'text-blue-600');
+            document.getElementById(`tab-${tabName}`).classList.remove('border-transparent', 'text-slate-500');
+
+            if (tabName === 'erd') {
+                // Redraw connections on tab click to ensure proper positions
+                setTimeout(drawAllConnections, 100);
+            }
+        }
+
+        // Copy SQL Code to Clipboard
+        function copySQLCode() {
+            const sqlText = document.getElementById('sql-code-block').innerText;
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = sqlText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                const copyText = document.getElementById('copy-text');
+                const copyIcon = document.getElementById('copy-icon');
+                const toast = document.getElementById('toast-copy');
+                
+                copyText.innerText = "Disalin!";
+                copyIcon.className = "fa-solid fa-check text-emerald-400";
+                toast.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    copyText.innerText = "Salin Kode SQL";
+                    copyIcon.className = "fa-regular fa-copy";
+                }, 3000);
+
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 4000);
+            } catch (err) {
+                console.error("Gagal menyalin teks", err);
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        // ERD Connections Drawing Logic
+        function drawAllConnections() {
+            const canvas = document.getElementById('relation-canvas');
+            if (!canvas) return;
+            canvas.innerHTML = ''; // Reset canvas
+
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) return; // Don't draw complex SVG lines on mobile layout
+
+            // Define relations
+            const relations = [
+                {
+                    from: 'col-pel-id', // Table Pelanggan PK
+                    to: 'col-tx-pelanggan', // Table Transaksi FK
+                    color: '#3b82f6', // blue-500
+                    id: 'relation-id_pelanggan'
+                },
+                {
+                    from: 'col-kon-id', // Table Konter PK
+                    to: 'col-tx-konter', // Table Transaksi FK
+                    color: '#10b981', // emerald-500
+                    id: 'relation-id_konter'
+                },
+                {
+                    from: 'col-tx-id', // Table Transaksi PK
+                    to: 'col-biaya-tx', // Table Biaya PK,FK
+                    color: '#f43f5e', // rose-500
+                    id: 'relation-no_transaksi'
+                }
+            ];
+
+            const canvasRect = canvas.getBoundingClientRect();
+
+            relations.forEach(rel => {
+                const startEl = document.getElementById(rel.from);
+                const endEl = document.getElementById(rel.to);
+
+                if (startEl && endEl) {
+                    const startRect = startEl.getBoundingClientRect();
+                    const endRect = endEl.getBoundingClientRect();
+
+                    // Calculate connection points relative to SVG canvas
+                    let x1, y1, x2, y2;
+                    
+                    if (startRect.left < endRect.left) {
+                        x1 = startRect.right - canvasRect.left;
+                        y1 = startRect.top + startRect.height / 2 - canvasRect.top;
+                        x2 = endRect.left - canvasRect.left;
+                        y2 = endRect.top + endRect.height / 2 - canvasRect.top;
+                    } else {
+                        x1 = startRect.left - canvasRect.left;
+                        y1 = startRect.top + startRect.height / 2 - canvasRect.top;
+                        x2 = endRect.right - canvasRect.left;
+                        y2 = endRect.top + endRect.height / 2 - canvasRect.top;
+                    }
+
+                    // Create path (cubic bezier curve)
+                    const dx = Math.abs(x2 - x1) * 0.5;
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+                    
+                    path.setAttribute('d', d);
+                    path.setAttribute('stroke', rel.color);
+                    path.setAttribute('stroke-width', '2.5');
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('id', rel.id);
+                    path.setAttribute('class', 'transition-all duration-300 opacity-60 hover:opacity-100');
+                    
+                    // Add animated circle indicator along the path
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('r', '4');
+                    circle.setAttribute('fill', rel.color);
+                    
+                    const animateMotion = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+                    animateMotion.setAttribute('dur', '4s');
+                    animateMotion.setAttribute('repeatCount', 'indefinite');
+                    animateMotion.setAttribute('path', d);
+                    
+                    circle.appendChild(animateMotion);
+                    
+                    canvas.appendChild(path);
+                    canvas.appendChild(circle);
+                }
+            });
+        }
+
+        // Relation Highlights on Hover
+        function highlightRelation(id) {
+            // Fade all paths
+            const paths = document.querySelectorAll('#relation-canvas path');
+            paths.forEach(p => p.setAttribute('stroke-width', '1.5'));
+            paths.forEach(p => p.setAttribute('opacity', '0.2'));
+
+            // Highlight target path
+            const activePath = document.getElementById(`relation-${id}`);
+            if (activePath) {
+                activePath.setAttribute('stroke-width', '4.5');
+                activePath.setAttribute('opacity', '1');
+            }
+
+            // Highlight corresponding tables and inputs
+            if (id === 'id_pelanggan') {
+                document.getElementById('table-pelanggan').classList.add('border-blue-400', 'scale-102', 'shadow-blue-500/20');
+                document.getElementById('col-tx-pelanggan').classList.add('bg-blue-900/40', 'text-blue-300');
+                document.getElementById('col-pel-id').classList.add('bg-blue-900/40', 'text-blue-300');
+            } else if (id === 'id_konter') {
+                document.getElementById('table-konter').classList.add('border-emerald-400', 'scale-102', 'shadow-emerald-500/20');
+                document.getElementById('col-tx-konter').classList.add('bg-emerald-900/40', 'text-emerald-300');
+                document.getElementById('col-kon-id').classList.add('bg-emerald-900/40', 'text-emerald-300');
+            } else if (id === 'no_transaksi') {
+                document.getElementById('table-biaya').classList.add('border-rose-400', 'scale-102', 'shadow-rose-500/20');
+                document.getElementById('col-tx-id').classList.add('bg-indigo-900/40', 'text-indigo-300');
+                document.getElementById('col-biaya-tx').classList.add('bg-rose-900/40', 'text-rose-300');
+            }
+        }
+
+        function clearHighlight() {
+            const paths = document.querySelectorAll('#relation-canvas path');
+            paths.forEach(p => {
+                p.setAttribute('stroke-width', '2.5');
+                p.removeAttribute('opacity');
+            });
+
+            // Remove styles
+            document.getElementById('table-pelanggan').classList.remove('border-blue-400', 'scale-102', 'shadow-blue-500/20');
+            document.getElementById('table-konter').classList.remove('border-emerald-400', 'scale-102', 'shadow-emerald-500/20');
+            document.getElementById('table-biaya').classList.remove('border-rose-400', 'scale-102', 'shadow-rose-500/20');
+            
+            document.getElementById('col-tx-pelanggan').classList.remove('bg-blue-900/40', 'text-blue-300');
+            document.getElementById('col-pel-id').classList.remove('bg-blue-900/40', 'text-blue-300');
+            
+            document.getElementById('col-tx-konter').classList.remove('bg-emerald-900/40', 'text-emerald-300');
+            document.getElementById('col-kon-id').classList.remove('bg-emerald-900/40', 'text-emerald-300');
+            
+            document.getElementById('col-tx-id').classList.remove('bg-indigo-900/40', 'text-indigo-300');
+            document.getElementById('col-biaya-tx').classList.remove('bg-rose-900/40', 'text-rose-300');
+        }
+
+        // Ingestion Simulator Logic
+        function startIngestionSimulation() {
+            const status = document.getElementById('sim-db-status');
+            const indicator = document.getElementById('sim-indicator');
+            status.innerText = "Mendistribusikan Data Berdasarkan Aturan Kunci...";
+            status.className = "text-amber-400 animate-pulse";
+            indicator.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping";
+
+            // 1. Ingest Master Pelanggan
+            setTimeout(() => {
+                const rowPel = document.getElementById('sim-row-pelanggan');
+                rowPel.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-blue-600">524510129249</td>
+                    <td class="p-3 font-semibold">HARYUNUDIN</td>
+                    <td class="p-3">R1</td>
+                    <td class="p-3">450 VA</td>
+                `;
+                rowPel.className = "bg-blue-50 text-slate-800 transition-all duration-500 font-medium";
+                highlightElementTemporarily('sim-tbl-pelanggan', 'border-blue-500');
+            }, 800);
+
+            // 2. Ingest Master Konter
+            setTimeout(() => {
+                const rowKon = document.getElementById('sim-row-konter');
+                rowKon.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-emerald-600">1</td>
+                    <td class="p-3 font-semibold">GENTENG CELL1</td>
+                `;
+                rowKon.className = "bg-emerald-50 text-slate-800 transition-all duration-500 font-medium";
+                highlightElementTemporarily('sim-tbl-konter', 'border-emerald-500');
+            }, 1600);
+
+            // 3. Ingest Transaksi Core
+            setTimeout(() => {
+                const rowTx = document.getElementById('sim-row-transaksi');
+                rowTx.innerHTML = `
+                    <td class="p-2 font-mono font-bold text-indigo-600">TX202606281535</td>
+                    <td class="p-2 font-mono text-center">1</td>
+                    <td class="p-2 font-mono">524510129249</td>
+                    <td class="p-2 text-slate-500">2026-06-28 15:35:14</td>
+                    <td class="p-2 text-right font-semibold">Rp 52.000,00</td>
+                    <td class="p-2 text-right font-mono text-emerald-600 font-bold">109.6 kWh</td>
+                    <td class="p-2 font-mono font-semibold tracking-wider text-indigo-700">2990-3265-1260-7101-8074</td>
+                `;
+                rowTx.className = "bg-indigo-50 text-slate-800 transition-all duration-500 font-medium";
+                highlightElementTemporarily('sim-tbl-transaksi', 'border-indigo-500');
+            }, 2400);
+
+            // 4. Ingest Detail Biaya & Hitung Total_Bayar
+            setTimeout(() => {
+                const rowBiaya = document.getElementById('sim-row-biaya');
+                rowBiaya.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-rose-600">TX202606281535</td>
+                    <td class="p-3 text-right">Rp 52.000,00</td>
+                    <td class="p-3 text-right text-slate-400">Rp 0,00</td>
+                    <td class="p-3 text-right text-slate-500">Rp 2.000,00</td>
+                    <td class="p-3 text-right font-bold bg-emerald-500 text-white rounded-lg">Rp 54.000,00</td>
+                `;
+                rowBiaya.className = "bg-rose-50 text-slate-800 transition-all duration-500 font-medium";
+                highlightElementTemporarily('sim-tbl-biaya', 'border-rose-500');
+                
+                status.innerText = "Data Berhasil Terdistribusi Sempurna (3NF)!";
+                status.className = "text-emerald-400 font-bold";
+                indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+            }, 3200);
+        }
+
+        function highlightElementTemporarily(id, borderClass) {
+            const el = document.getElementById(id);
+            el.classList.add('scale-[1.02]', 'shadow-lg', borderClass);
+            setTimeout(() => {
+                el.classList.remove('scale-[1.02]', 'shadow-lg', borderClass);
+            }, 1000);
+        }
+
+        function highlightSimulatedTable(tabType) {
+            const el = document.getElementById(`sim-tbl-${tabType}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                highlightElementTemporarily(`sim-tbl-${tabType}`, 'ring-4');
+            }
+        }
+
+        function resetSimulation() {
+            const status = document.getElementById('sim-db-status');
+            const indicator = document.getElementById('sim-indicator');
+            status.innerText = "Siap Menerima Simulasi";
+            status.className = "text-emerald-400";
+            indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+
+            document.getElementById('sim-row-pelanggan').innerHTML = '<td colspan="4" class="p-3 text-center py-4">Data Kosong. Klik "Proses Aliran Data" di sebelah kiri untuk simulasi.</td>';
+            document.getElementById('sim-row-pelanggan').className = "text-slate-400 italic";
+
+            document.getElementById('sim-row-konter').innerHTML = '<td colspan="2" class="p-3 text-center py-4">Data Kosong.</td>';
+            document.getElementById('sim-row-konter').className = "text-slate-400 italic";
+
+            document.getElementById('sim-row-transaksi').innerHTML = '<td colspan="7" class="p-3 text-center py-4">Data Kosong.</td>';
+            document.getElementById('sim-row-transaksi').className = "text-slate-400 italic";
+
+            document.getElementById('sim-row-biaya').innerHTML = '<td colspan="5" class="p-3 text-center py-4">Data Kosong.</td>';
+            document.getElementById('sim-row-biaya').className = "text-slate-400 italic";
+        }
+
+        // Initialize connection drawing
+        window.addEventListener('load', drawAllConnections);
+        window.addEventListener('resize', drawAllConnections);
+    </script>
+</body>
+</html>
